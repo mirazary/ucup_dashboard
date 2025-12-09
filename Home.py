@@ -16,7 +16,7 @@ st.markdown(
             <b>Urban Rob Risk • Cover Mangrove • Under Water Pollution</b>
         </p>
         <p style="font-size: 16px; color: #888; margin-top: -10px;">
-            Analisis lingkungan kawasan Muara Angke menggunakan citra satelit Sentinel-2 & Landsat (2020–2024)
+            Analisis lingkungan kawasan Muara Angke menggunakan citra satelit
         </p>
     </div>
     """,
@@ -78,7 +78,7 @@ with col1:
             • DEM SRTM<br>
             • TPI, NDWI, NDVI
         </p>
-        <span style="{bold_style}">Output:</span> Flood Hazard Index (1–5)
+        <span style="{bold_style}">Output:</span> Flood Hazard Index
     </div>
     """, unsafe_allow_html=True)
 
@@ -100,8 +100,8 @@ with col3:
         <div style="{title_style} color:#7a4c05;">💧 Under Water Pollution</div>
         <p style="{body_style}">
             Analisis kualitas air & kekeruhan:<br>
-            • NDWI (air presence)<br>
-            • NDTI (turbiditas)
+            • NDWI <br>
+            • NDTI 
         </p>
         <span style="{bold_style}">Output:</span> Peta & Histogram NDTI
     </div>
@@ -135,4 +135,5 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 
