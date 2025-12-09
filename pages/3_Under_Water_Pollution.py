@@ -7,180 +7,99 @@ import json
 import tempfile
 import os
 
+# INIT GEE DARI SERVICE ACCOUNT
 @st.cache_resource
 def init_ee_service_account():
     try:
-        # 1. Ambil JSON service account dari secrets
         sa_json_str = st.secrets["gee"]["service_account_json"]
         sa_info = json.loads(sa_json_str)
 
-        # 2. Tulis ke file sementara
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as fp:
             json.dump(sa_info, fp)
             key_file_path = fp.name
 
-        # 3. Buat credentials dari file
         credentials = ee.ServiceAccountCredentials(
             email=sa_info["client_email"],
             key_file=key_file_path,
         )
 
-        # 4. Inisialisasi Earth Engine
         ee.Initialize(credentials, project=sa_info["project_id"])
-
-        # 5. Hapus file sementara
         os.remove(key_file_path)
-
         return True
 
     except Exception as e:
         st.error(f"❌ Gagal menginisialisasi Google Earth Engine:\n\n{e}")
         st.stop()
 
-# PANGGIL SEKALI DI AWAL HALAMAN
 init_ee_service_account()
 
-# ------------------------------------------------
 # PAGE HEADER
-# ------------------------------------------------
-st.title("💧 Water Quality & Turbidity – Muara Angke (2020–2024)")
+st.title("💧 Water Quality & Turbidity")
 
 st.markdown(
     """
     Modul ini menampilkan **NDWI (indikator keberadaan air)** dan 
     **NDTI (turbiditas/kekeruhan)** untuk Estuari Muara Angke (2020–2024).
 
-    - **NDWI** → mendeteksi air dan area basah  
+    - **NDWI** → mendeteksi air  
     - **NDTI** → mengukur tingkat kekeruhan air  
     """
 )
 
-# ------------------------------------------------
 # AOI
-# ------------------------------------------------
-AOI = ee.Geometry.Polygon(
-    [[
-        [106.7535685, -6.1066100],
-        [106.7771719, -6.1066100],
-        [106.7771719, -6.0886875],
-        [106.7535685, -6.0886875],
-    ]]
-)
+AOI = ee.Geometry.Polygon([[
+    [106.7535685, -6.1066100],
+    [106.7771719, -6.1066100],
+    [106.7771719, -6.0886875],
+    [106.7535685, -6.0886875],
+]])
 
-# ------------------------------------------------
 # SIDEBAR FILTERS
-# ------------------------------------------------
 st.sidebar.header("⚙️ Pengaturan Turbiditas")
 
 year = st.sidebar.selectbox("Pilih Tahun", [2020, 2021, 2022, 2023, 2024], index=4)
 
 cloud_thresh = st.sidebar.slider(
-    "Cloud Max (%)",
-    min_value=0,
-    max_value=30,
-    value=10,
-    step=1,
+    "Cloud Max (%)", 0, 30, 10, 1
 )
 
 layer_type = st.sidebar.radio(
     "Pilih Layer Tampilan",
     ["NDWI (Air)", "NDTI (Turbiditas)"],
-    index=1,
+    index=1
 )
 
-# ------------------------------------------------
-# FUNGSI AMBIL NDWI + NDTI PER TAHUN
-# ------------------------------------------------
+# AMBIL NDWI & NDTI
 def get_ndwi_ndti(year, cloud_limit=10):
-    start = f"{year}-01-01"
-    end = f"{year}-12-31"
-
     s2 = (
         ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
         .filterBounds(AOI)
-        .filterDate(start, end)
+        .filterDate(f"{year}-01-01", f"{year}-12-31")
         .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", cloud_limit))
         .median()
         .clip(AOI)
-        .select(["B3", "B4", "B8"])  # Green, Red, NIR
     )
 
     green = s2.select("B3")
-    red = s2.select("B4")
-    nir = s2.select("B8")
+    red   = s2.select("B4")
+    nir   = s2.select("B8")
 
     ndwi = green.subtract(nir).divide(green.add(nir).add(1e-6)).rename("NDWI")
 
-    water = ndwi.gt(0).rename("watermask")
+    watermask = ndwi.gt(0).rename("watermask")
 
     ndti = red.subtract(green).divide(red.add(green).add(1e-6)).rename("NDTI")
+    ndti_water = ndti.updateMask(watermask).clip(AOI)
 
-    ndti_water = ndti.updateMask(water).clip(AOI)
+    return ndwi, ndti_water, watermask
 
-    return ndwi, ndti_water, water
-
-# ------------------------------------------------
-# HITUNG CITRA PER TAHUN
-# ------------------------------------------------
 ndwi_img, ndti_img, watermask = get_ndwi_ndti(year, cloud_limit=cloud_thresh)
 
-# ------------------------------------------------
-# FUNGSI HITUNG STATISTIK
-# ------------------------------------------------
-def compute_stats(image):
-    stats = image.reduceRegion(
-        reducer=ee.Reducer.mean().combine(
-            reducer2=ee.Reducer.stdDev(), sharedInputs=True
-        ),
-        geometry=AOI,
-        scale=10,
-        maxPixels=1e13,
-    )
-
-    try:
-        mean = float(ee.Number(stats.get("mean")).getInfo())
-    except Exception:
-        mean = None
-
-    try:
-        std = float(ee.Number(stats.get("stdDev")).getInfo())
-    except Exception:
-        std = None
-
-    return mean, std
-
-mean_ndwi, std_ndwi = compute_stats(ndwi_img)
-mean_ndti, std_ndti = compute_stats(ndti_img)
-
-# ------------------------------------------------
-# SUMMARY CARDS
-# ------------------------------------------------
-col1, col2 = st.columns(2)
-
-with col1:
-    st.metric(
-        "📏 Rata-rata NDWI",
-        f"{mean_ndwi:.3f}" if mean_ndwi is not None else "N/A",
-        help="Semakin tinggi → semakin basah / area berair.",
-    )
-
-with col2:
-    st.metric(
-        "🌫️ Rata-rata NDTI (Turbiditas)",
-        f"{mean_ndti:.3f}" if mean_ndti is not None else "N/A",
-        help="Semakin tinggi → semakin keruh air.",
-    )
-
-st.markdown("---")
-
-# ------------------------------------------------
 # PETA INTERAKTIF
-# ------------------------------------------------
-st.subheader(f"🗺️ Peta NDWI / NDTI Tahun {year}")
+st.subheader(f"🗺️ Peta NDWI / NDTI – Tahun {year}")
 
 m = geemap.Map(center=[-6.098, 106.765], zoom=15)
 m.add_basemap("CartoDB.DarkMatter")
-
 m.addLayer(AOI, {"color": "yellow"}, "AOI")
 
 ndwi_vis = {"min": -0.5, "max": 0.5, "palette": ["red", "white", "blue"]}
@@ -196,9 +115,7 @@ else:
 m.add_legend(title=layer_type, legend_dict=legend)
 m.to_streamlit(height=500)
 
-# ------------------------------------------------
 # HISTOGRAM NDTI
-# ------------------------------------------------
 st.subheader(f"📊 Histogram NDTI (Turbiditas) – {year}")
 
 hist_dict = ndti_img.reduceRegion(
@@ -223,5 +140,3 @@ try:
 
 except Exception:
     st.info("Histogram tidak dapat dihitung (kemungkinan data air sedikit).")
-
-
