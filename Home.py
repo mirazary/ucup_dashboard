@@ -1,6 +1,6 @@
 import streamlit as st
 
-# PAGE CONFIG (hanya file ini yang punya)
+# PAGE CONFIG 
 st.set_page_config(
     page_title="UCUP",
     layout="wide",
@@ -135,7 +135,3 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-
-
-
