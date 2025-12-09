@@ -38,11 +38,9 @@ def init_ee_service_account():
 # PANGGIL SEKALI DI AWAL HALAMAN
 init_ee_service_account()
 
-st.title("🌊 Flood Hazard Index – Muara Angke (2020–2024)")
+st.title("🌊 Flood Hazard Index")
 
-# =========================================================
 # AOI
-# =========================================================
 aoi = ee.Geometry.Polygon([[  # Muara Angke
     [106.7535685, -6.1066100],
     [106.7771719, -6.1066100],
@@ -53,18 +51,14 @@ aoi = ee.Geometry.Polygon([[  # Muara Angke
 years = [2020, 2021, 2022, 2023, 2024]
 selected_year = st.sidebar.selectbox("Pilih Tahun (Landsat)", years)
 
-# =========================================================
 # LOAD DATASETS
-# =========================================================
 gsw = ee.Image("JRC/GSW1_4/GlobalSurfaceWater")
 srtm = ee.Image("USGS/SRTMGL1_003")
 l8 = ee.ImageCollection("LANDSAT/LC08/C02/T1_L2")
 
 rainbow = ["blue", "cyan", "green", "yellow", "red"]
 
-# =========================================================
 # CLOUD MASK FOR LANDSAT 8
-# =========================================================
 def cloudMask(image):
     qa = image.select("QA_PIXEL")
     dilated = 1 << 1
@@ -87,9 +81,7 @@ def cloudMask(image):
         .updateMask(mask)
     )
 
-# =========================================================
 # GENERATE FLOOD HAZARD
-# =========================================================
 def compute_flood_hazard():
     water = gsw.select("occurrence").clip(aoi)
     permanent = water.gt(80)
@@ -224,11 +216,3 @@ elif layer_choice == "Wetness Score":
     m.addLayer(result["wetScore"], {"min": 1, "max": 5, "palette": rainbow}, "Wetness Score")
 
 m.to_streamlit(height=600)
-
-
-
-
-
-
-
-
