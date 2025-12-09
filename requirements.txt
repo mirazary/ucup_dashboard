@@ -7,3 +7,6 @@ numpy
 matplotlib
 folium
 branca
+earthengine-api
+google-auth
+
