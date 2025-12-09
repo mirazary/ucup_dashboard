@@ -1,8 +1,9 @@
 streamlit
-earthengine-api
+earthengine-api==0.1.397
 geemap==0.30.0
 folium==0.15.1
 pandas
 numpy
 plotly
 groq
+requests
