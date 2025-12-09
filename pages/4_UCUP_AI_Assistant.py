@@ -2,9 +2,7 @@ import streamlit as st
 from groq import Groq
 import datetime
 
-# ---------------------------------------------------
 # PAGE UI
-# ---------------------------------------------------
 st.title("🤖 UCUP AI Assistant")
 st.markdown(
     """
@@ -17,9 +15,7 @@ st.markdown(
 
 st.divider()
 
-# ---------------------------------------------------
 # INIT GROQ CLIENT
-# ---------------------------------------------------
 def get_client():
     try:
         api_key = st.secrets["groq"]["api_key"]
@@ -30,37 +26,27 @@ def get_client():
 
 client = get_client()
 
-# ---------------------------------------------------
 # TOMBOL RESET CHAT
-# ---------------------------------------------------
 col1, col2 = st.columns([6, 1])
 with col2:
     if st.button("♻️ Reset"):
         st.session_state.messages = []
         st.rerun()
 
-# ---------------------------------------------------
 # CHAT MEMORY
-# ---------------------------------------------------
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# ---------------------------------------------------
 # TAMPILKAN CHAT SEBELUMNYA
-# ---------------------------------------------------
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# ---------------------------------------------------
 # INPUT BOX
-# ---------------------------------------------------
 placeholder_text = "Tanyakan sesuatu… "
 user_input = st.chat_input(placeholder_text)
 
-# ---------------------------------------------------
 # KALO USER KIRIM PESAN
-# ---------------------------------------------------
 if user_input:
 
     # Tampilkan pesan user
@@ -103,4 +89,5 @@ if user_input:
 
     # Simpan ke riwayat
     st.session_state.messages.append({"role": "assistant", "content": ai_answer})
+
 
