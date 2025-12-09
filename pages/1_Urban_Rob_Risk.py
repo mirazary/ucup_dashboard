@@ -38,7 +38,7 @@ def init_ee_service_account():
 # PANGGIL SEKALI DI AWAL HALAMAN
 init_ee_service_account()
 
-st.title("🌊 Flood Hazard Index – UCUP Dashboard")
+st.title("🌊 Flood Hazard Index – Muara Angke (2020–2024")
 
 # =========================================================
 # AOI
@@ -224,6 +224,7 @@ elif layer_choice == "Wetness Score":
     m.addLayer(result["wetScore"], {"min": 1, "max": 5, "palette": rainbow}, "Wetness Score")
 
 m.to_streamlit(height=600)
+
 
 
 
