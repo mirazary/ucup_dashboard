@@ -1,4 +1,5 @@
 import streamlit as st
+import geemap.foliumap as geemap
 import ee
 import json
 import tempfile
@@ -229,6 +230,7 @@ elif layer_choice == "Wetness Score":
     m.addLayer(result["wetScore"], {"min": 1, "max": 5, "palette": rainbow}, "Wetness Score")
 
 m.to_streamlit(height=600)
+
 
 
 
