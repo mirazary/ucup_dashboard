@@ -52,49 +52,60 @@ hover_script = """
 """
 
 # 3 FEATURE CARDS
+card_style = """
+    background-color:{bg};
+    padding: 22px;
+    border-radius: 18px;
+    height: 220px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: 0.3s;
+    color: #111111; /* teks jauh lebih gelap */
+"""
+
+title_style = "font-size: 20px; font-weight: 700; margin-bottom: 6px;"
+body_style  = "font-size: 15px; line-height: 1.45; color: #222222;"  # kontras tinggi
+bold_style  = "font-weight: 600; color: #000000;"                    # super tajam
+
 col1, col2, col3 = st.columns(3)
 
 with col1:
     st.markdown(f"""
     <div class="card" style="{card_style.format(bg='#e8f4f8')}">
-        <h3 style="color:#0f2a44; margin-bottom: 6px;">🌊 Urban Rob Risk</h3>
-        <p style="font-size:15px; line-height: 1.4;">
+        <div style="{title_style} color:#0f2a44;">🌊 Urban Rob Risk</div>
+        <p style="{body_style}">
             Analisis potensi banjir rob berbasis GIS:<br>
             • Distance-to-water<br>
             • DEM SRTM<br>
             • TPI, NDWI, NDVI
         </p>
-        <b>Output:</b> Flood Hazard Index (1–5)
+        <span style="{bold_style}">Output:</span> Flood Hazard Index (1–5)
     </div>
     """, unsafe_allow_html=True)
 
 with col2:
     st.markdown(f"""
     <div class="card" style="{card_style.format(bg='#e9f7ef')}">
-        <h3 style="color:#184d28; margin-bottom: 6px;">🌿 Cover Mangrove</h3>
-        <p style="font-size:15px; line-height: 1.4;">
-            Pemantauan tutupan mangrove setiap tahun (2020–2024)
+        <div style="{title_style} color:#184d28;">🌿 Cover Mangrove</div>
+        <p style="{body_style}">
+            Pemantauan tutupan mangrove tahunan (2020–2024)
             menggunakan indeks MVI dari Sentinel-2.
         </p>
-        <b>Output:</b> Luas area, tren, gain/loss</b>
+        <span style="{bold_style}">Output:</span> Luas area, tren, gain/loss
     </div>
     """, unsafe_allow_html=True)
 
 with col3:
     st.markdown(f"""
     <div class="card" style="{card_style.format(bg='#fef6e4')}">
-        <h3 style="color:#7a4c05; margin-bottom: 6px;">💧 Under Water Pollution</h3>
-        <p style="font-size:15px; line-height: 1.4;">
-            Analisis kualitas air dan kekeruhan:<br>
+        <div style="{title_style} color:#7a4c05;">💧 Under Water Pollution</div>
+        <p style="{body_style}">
+            Analisis kualitas air & kekeruhan:<br>
             • NDWI (air presence)<br>
             • NDTI (turbiditas)
         </p>
-        <b>Output:</b> Peta & Histogram NDTI
+        <span style="{bold_style}">Output:</span> Peta & Histogram NDTI
     </div>
     """, unsafe_allow_html=True)
-
-st.markdown(hover_script, unsafe_allow_html=True)
-st.divider()
 
 # AI UCUP ASSISTANT
 st.markdown(
@@ -124,3 +135,4 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
