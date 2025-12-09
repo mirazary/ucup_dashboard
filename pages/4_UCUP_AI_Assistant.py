@@ -55,7 +55,7 @@ for msg in st.session_state.messages:
 # ---------------------------------------------------
 # INPUT BOX
 # ---------------------------------------------------
-placeholder_text = "Tanyakan sesuatu… contoh: Apa arti nilai NDWI negatif?"
+placeholder_text = "Tanyakan sesuatu… "
 user_input = st.chat_input(placeholder_text)
 
 # ---------------------------------------------------
@@ -103,3 +103,4 @@ if user_input:
 
     # Simpan ke riwayat
     st.session_state.messages.append({"role": "assistant", "content": ai_answer})
+
