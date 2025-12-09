@@ -1,12 +1,8 @@
 streamlit
-geemap
 earthengine-api
-groq
+geemap==0.30.0
+folium==0.15.1
 pandas
 numpy
-matplotlib
-folium
-branca
-earthengine-api
-google-auth
-
+plotly
+groq
