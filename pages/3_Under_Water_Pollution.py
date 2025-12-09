@@ -43,7 +43,7 @@ init_ee_service_account()
 # ------------------------------------------------
 # PAGE HEADER
 # ------------------------------------------------
-st.title("💧 Water Quality & Turbidity – UCUP Dashboard")
+st.title("💧 Water Quality & Turbidity – Muara Angke (2020–2024)")
 
 st.markdown(
     """
@@ -223,4 +223,5 @@ try:
 
 except Exception:
     st.info("Histogram tidak dapat dihitung (kemungkinan data air sedikit).")
+
 
