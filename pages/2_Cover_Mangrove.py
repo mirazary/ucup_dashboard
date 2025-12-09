@@ -3,35 +3,42 @@ import ee
 import geemap.foliumap as geemap
 import pandas as pd
 import plotly.express as px
+import json
+import tempfile
+import os
 
-# ================================================
-# INIT EARTH ENGINE
-# ================================================
-def init_ee():
-    if ee.data._credentials is not None:
-        return
-
+@st.cache_resource
+def init_ee_service_account():
     try:
-        service_account = st.secrets["GEE_SERVICE_ACCOUNT"]
-        private_key = st.secrets["GEE_PRIVATE_KEY"]
-        project = st.secrets.get("GEE_PROJECT", "estuaria")
+        # 1. Ambil JSON service account dari secrets
+        sa_json_str = st.secrets["gee"]["service_account_json"]
+        sa_info = json.loads(sa_json_str)
 
+        # 2. Tulis ke file sementara
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as fp:
+            json.dump(sa_info, fp)
+            key_file_path = fp.name
+
+        # 3. Buat credentials dari file
         credentials = ee.ServiceAccountCredentials(
-            email=service_account,
-            key_data=private_key,
+            email=sa_info["client_email"],
+            key_file=key_file_path,
         )
-        ee.Initialize(credentials, project=project)
-    except Exception:
-        try:
-            ee.Initialize(project="estuaria")
-        except Exception:
-            st.error(
-                "❌ Earth Engine gagal diinisialisasi.\n\n"
-                "Cek konfigurasi Secrets atau credential lokal."
-            )
-            st.stop()
 
-init_ee()
+        # 4. Inisialisasi Earth Engine
+        ee.Initialize(credentials, project=sa_info["project_id"])
+
+        # 5. Hapus file sementara
+        os.remove(key_file_path)
+
+        return True
+
+    except Exception as e:
+        st.error(f"❌ Gagal menginisialisasi Google Earth Engine:\n\n{e}")
+        st.stop()
+
+# PANGGIL SEKALI DI AWAL HALAMAN
+init_ee_service_account()
 
 st.title("🌿 Mangrove Dashboard – Muara Angke (2020–2024)")
 
@@ -214,3 +221,4 @@ with col_chart:
         color_discrete_map={"LOSS": "red", "GAIN": "green"},
     )
     st.plotly_chart(fig_lg, use_container_width=True)
+
