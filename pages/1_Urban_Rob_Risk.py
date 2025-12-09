@@ -38,12 +38,6 @@ def init_ee_service_account():
 # PANGGIL SEKALI DI AWAL HALAMAN
 init_ee_service_account()
 
-
-# Panggil fungsi ini di awal skrip Anda
-if init_ee_service_account():
-    st.title("Aplikasi GEE Berhasil Terkoneksi!")
-    # Lanjutkan dengan kode GEE Anda di sini...
-
 st.title("🌊 Flood Hazard Index – UCUP Dashboard")
 
 # =========================================================
@@ -230,6 +224,7 @@ elif layer_choice == "Wetness Score":
     m.addLayer(result["wetScore"], {"min": 1, "max": 5, "palette": rainbow}, "Wetness Score")
 
 m.to_streamlit(height=600)
+
 
 
 
