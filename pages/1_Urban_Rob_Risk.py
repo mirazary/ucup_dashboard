@@ -6,34 +6,32 @@ import geemap.foliumap as geemap
 # INIT EARTH ENGINE
 # =========================================================
 def init_ee():
+    import ee
+    import streamlit as st
+
     try:
-        # Coba init pakai Service Account dari Streamlit Secrets
+        # Ambil service account dari secret
         service_account = st.secrets["GEE_SERVICE_ACCOUNT"]
         private_key = st.secrets["GEE_PRIVATE_KEY"]
-        project = st.secrets.get("GEE_PROJECT", "estuaria")
+        project = st.secrets["GEE_PROJECT"]
 
+        # Build credentials
         credentials = ee.ServiceAccountCredentials(
             email=service_account,
             key_data=private_key
         )
-        ee.Initialize(credentials, project=project)
-        return
 
+        # Inisialisasi Earth Engine
+        ee.Initialize(credentials, project=project)
+
+        st.write("Earth Engine berhasil diinisialisasi (Service Account).")
+    
     except Exception as e:
-        # Kalau gagal, coba init default (untuk lokal)
-        try:
-            ee.Initialize(project="estuaria")
-            return
-        except:
-            st.error(
-                "❌ Earth Engine gagal diinisialisasi.\n\n"
-                "Pastikan Secrets sudah benar:\n"
-                "- GEE_SERVICE_ACCOUNT\n"
-                "- GEE_PRIVATE_KEY\n"
-                "- GEE_PROJECT\n\n"
-                f"Error detail: {e}"
-            )
-            st.stop()
+        st.error(
+            f"❌ Earth Engine gagal diinisialisasi.\n\n"
+            f"Error detail: {e}"
+        )
+        st.stop()
 
 init_ee()
 
@@ -223,4 +221,5 @@ elif layer_choice == "Wetness Score":
     m.addLayer(result["wetScore"], {"min": 1, "max": 5, "palette": rainbow}, "Wetness Score")
 
 m.to_streamlit(height=600)
+
 
