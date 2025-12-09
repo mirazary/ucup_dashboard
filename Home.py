@@ -11,7 +11,7 @@ st.set_page_config(
 st.markdown(
     """
     <div style="padding: 30px 20px; text-align: center;">
-        <h1 style="font-size: 48px; margin-bottom: -10px;">🌀 UCUP Dashboard</h1>
+        <h1 style="font-size: 48px; margin-bottom: -10px;">🌀 UCUP</h1>
         <p style="font-size: 20px; color: #666;">
             <b>Urban Rob Risk • Cover Mangrove • Under Water Pollution</b>
         </p>
@@ -135,6 +135,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 
 
 
