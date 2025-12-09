@@ -2,7 +2,7 @@ import streamlit as st
 
 # PAGE CONFIG (hanya file ini yang punya)
 st.set_page_config(
-    page_title="UCUP Dashboard",
+    page_title="UCUP",
     layout="wide",
     page_icon="🌀",
 )
@@ -135,5 +135,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 
 
