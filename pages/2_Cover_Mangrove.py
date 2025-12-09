@@ -40,11 +40,9 @@ def init_ee_service_account():
 # PANGGIL SEKALI DI AWAL HALAMAN
 init_ee_service_account()
 
-st.title("🌿 Mangrove Dashboard – Muara Angke (2020–2024)")
+st.title("🌿 Mangrove Dashboard")
 
-# ================================================
 # AOI MUARA ANGKE
-# ================================================
 aoi = ee.Geometry.Polygon(
     [
         [
@@ -56,9 +54,7 @@ aoi = ee.Geometry.Polygon(
     ]
 )
 
-# ================================================
 # SIDEBAR SETTINGS
-# ================================================
 st.sidebar.header("⚙️ Pengaturan")
 
 selected_year = st.sidebar.selectbox("Pilih Tahun", [2020, 2021, 2022, 2023, 2024])
@@ -68,9 +64,7 @@ max_mvi = st.sidebar.slider("Maximum MVI", 0.0, 25.0, 20.00, 0.01)
 
 show_mvi = st.sidebar.checkbox("Tampilkan Layer MVI", False)
 
-# ================================================
 # GET MVI FUNCTION
-# ================================================
 def get_mvi(year):
     start = f"{year}-05-01"
     end = f"{year}-09-30"
@@ -102,9 +96,7 @@ mask_map_dict = {}
 mask_area_dict = {}
 area_dict = {}
 
-# ================================================
 # CALC AREA FUNCTION
-# ================================================
 def calc_area(mask):
     area = (
         mask.multiply(ee.Image.pixelArea())
@@ -122,28 +114,22 @@ def calc_area(mask):
 
     return ee.Number(area).divide(10000).getInfo()  # m² → ha
 
-# ================================================
 # PROCESS ALL YEARS
-# ================================================
 for yr in years:
     mvi, mask_map, mask_area = get_mvi(yr)
     mvi_dict[yr] = mvi
     mask_map_dict[yr] = mask_map
     mask_area_dict[yr] = mask_area
     area_dict[yr] = calc_area(mask_area)
-
-# ================================================
+    
 # LOSS & GAIN
-# ================================================
 loss_mask = mask_area_dict[2020].And(mask_area_dict[2024].Not()).uint8()
 gain_mask = mask_area_dict[2024].And(mask_area_dict[2020].Not()).uint8()
 
 loss_area = calc_area(loss_mask)
 gain_area = calc_area(gain_mask)
 
-# ================================================
 # SIDEBAR SUMMARY
-# ================================================
 st.sidebar.header("📌 Ringkasan")
 
 st.sidebar.metric("🌿 Luas Mangrove 2020", f"{area_dict[2020]:.2f} ha")
@@ -152,9 +138,7 @@ st.sidebar.metric("🌿 Luas Mangrove 2024", f"{area_dict[2024]:.2f} ha")
 st.sidebar.metric("🔥 LOSS 2020→2024", f"{loss_area:.2f} ha", delta=-loss_area)
 st.sidebar.metric("💚 GAIN 2020→2024", f"{gain_area:.2f} ha", delta=gain_area)
 
-# ================================================
 # MAP PANEL
-# ================================================
 col_map, col_chart = st.columns([2, 1])
 
 with col_map:
@@ -187,9 +171,7 @@ with col_map:
     )
     st.table(df_ts)
 
-# ================================================
 # RIGHT PANEL – TIME SERIES & LOSS/GAIN
-# ================================================
 with col_chart:
     st.subheader("📈 Time Series Luas Mangrove")
 
@@ -221,4 +203,3 @@ with col_chart:
         color_discrete_map={"LOSS": "red", "GAIN": "green"},
     )
     st.plotly_chart(fig_lg, use_container_width=True)
-
