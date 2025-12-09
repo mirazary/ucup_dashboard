@@ -6,16 +6,14 @@ st.write(
     "Tanya apa pun tentang Mangrove, Turbiditas, Flood Hazard, Muara Angke, dll."
 )
 
-# ------------------------------------------------
 # INIT GROQ CLIENT (API KEY DIAMBIL DARI SECRETS)
-# ------------------------------------------------
 def get_client():
     try:
-        api_key = st.secrets["GROQ_API_KEY"]
+        api_key = st.secrets["groq"]["api_key"]
     except Exception:
         st.error(
-            "❌ GROQ_API_KEY belum diatur di Secrets.\n\n"
-            "Masukkan API key Groq di Secrets terlebih dahulu."
+            "❌ Groq API key belum diatur.\n\n"
+            "Masukkan API key di Secrets Streamlit."
         )
         st.stop()
 
@@ -23,9 +21,7 @@ def get_client():
 
 client = get_client()
 
-# ------------------------------------------------
 # SIMPAN RIWAYAT CHAT
-# ------------------------------------------------
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
