@@ -1,6 +1,6 @@
 import streamlit as st
 
-# PAGE CONFIG
+# PAGE CONFIG HANYA DI FILE INI
 st.set_page_config(
     page_title="UCUP Dashboard",
     layout="wide",
@@ -15,18 +15,24 @@ st.markdown(
     Selamat datang di **UCUP Dashboard** — sistem monitoring lingkungan untuk 
     kawasan **Muara Angke** yang menggabungkan analisis *mangrove*, 
     *turbiditas*, dan *flood hazard*.
-    """,
+
+    Gunakan sidebar untuk berpindah halaman:
+    - 🌊 Urban Rob Risk (Flood Hazard Index)
+    - 🌿 Cover Mangrove
+    - 💧 Under Water Pollution
+    - 🤖 UCUP AI Assistant
+    """
 )
 
 st.divider()
 
-# CARD STYLE (TEKS GELAP)
+# CARD STYLE
 card_style = """
     background-color:{bg};
     padding:20px;
     border-radius:15px;
     height:200px;
-    color:#1a1a1a;        /* dark font */
+    color:#1a1a1a;
     font-weight:430;
 """
 
@@ -80,7 +86,7 @@ st.markdown(
     AI akan menjawab dengan penjelasan yang mudah dipahami.
     """
 )
-st.info("Pergi ke halaman **UCUP AI Assistant** dari sidebar.", icon="💬")
+st.info("Pergi ke halaman **UCUP AI Assistant** dari sidebar (folder `pages`).", icon="💬")
 
 # Footer
 st.markdown(
