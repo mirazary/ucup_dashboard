@@ -5,35 +5,49 @@ import geemap.foliumap as geemap
 # =========================================================
 # INIT EARTH ENGINE
 # =========================================================
-def init_ee():
-    import ee
-    import streamlit as st
+import ee
+import streamlit as st
+import json
+import tempfile
+import os
 
+# Gunakan @st.cache_resource agar inisialisasi hanya dilakukan sekali per deployment
+@st.cache_resource
+def init_ee_service_account():
+    # ... (Bagian ini sama dengan respons sebelumnya) ...
     try:
-        # Ambil service account dari secret
-        service_account = st.secrets["GEE_SERVICE_ACCOUNT"]
-        private_key = st.secrets["GEE_PRIVATE_KEY"]
-        project = st.secrets["GEE_PROJECT"]
-
-        # Build credentials
-        credentials = ee.ServiceAccountCredentials(
-            email=service_account,
-            key_data=private_key
+        # 1. Ambil konten JSON Service Account dari secrets
+        sa_json_str = st.secrets["gee"]["service_account_json"]
+        sa_info = json.loads(sa_json_str)
+        
+        # 2. Buat file sementara
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as fp:
+            json.dump(sa_info, fp)
+            key_file_path = fp.name
+        
+        # 3. Inisialisasi GEE menggunakan file kunci Service Account
+        ee.Initialize(
+            service_account_file=key_file_path,
+            project=sa_info.get("project_id") # Akan mengambil project ID: "estuaria" atau yang lain dari JSON
         )
+        
+        # 4. Hapus file sementara setelah inisialisasi
+        os.remove(key_file_path)
 
-        # Inisialisasi Earth Engine
-        ee.Initialize(credentials, project=project)
+        st.sidebar.success(f"✅ GEE Terkoneksi: Proyek '{sa_info.get('project_id')}'")
+        return True
 
-        st.write("Earth Engine berhasil diinisialisasi (Service Account).")
-    
     except Exception as e:
-        st.error(
-            f"❌ Earth Engine gagal diinisialisasi.\n\n"
-            f"Error detail: {e}"
-        )
+        st.error(f"❌ Gagal menginisialisasi GEE: {e}")
+        st.error("Pastikan secrets.toml memiliki kunci Service Account JSON yang lengkap dan benar di bawah [gee].")
         st.stop()
+        
+    return False
 
-init_ee()
+# Panggil fungsi ini di awal skrip Anda
+if init_ee_service_account():
+    st.title("Aplikasi GEE Berhasil Terkoneksi!")
+    # Lanjutkan dengan kode GEE Anda di sini...
 
 st.title("🌊 Flood Hazard Index – UCUP Dashboard")
 
@@ -221,5 +235,6 @@ elif layer_choice == "Wetness Score":
     m.addLayer(result["wetScore"], {"min": 1, "max": 5, "palette": rainbow}, "Wetness Score")
 
 m.to_streamlit(height=600)
+
 
 
