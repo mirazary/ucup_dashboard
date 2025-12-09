@@ -1,72 +1,105 @@
 import streamlit as st
 from groq import Groq
+import datetime
 
+# ---------------------------------------------------
+# PAGE UI
+# ---------------------------------------------------
 st.title("🤖 UCUP AI Assistant")
-st.write(
-    "Tanya apa pun tentang Mangrove, Turbiditas, Flood Hazard, Muara Angke, dll."
+st.markdown(
+    """
+    Tanyakan apa pun tentang **mangrove**, **turbiditas**, **banjir rob**, 
+    **NDWI/NDTI**, **MVI**, atau kondisi lingkungan **Muara Angke (2020–2024)**.
+
+    AI akan menjawab dengan penjelasan **jelas, sederhana, dan berbasis data**.
+    """
 )
 
-# INIT GROQ CLIENT (API KEY DIAMBIL DARI SECRETS)
+st.divider()
+
+# ---------------------------------------------------
+# INIT GROQ CLIENT
+# ---------------------------------------------------
 def get_client():
     try:
         api_key = st.secrets["groq"]["api_key"]
+        return Groq(api_key=api_key)
     except Exception:
-        st.error(
-            "❌ Groq API key belum diatur.\n\n"
-            "Masukkan API key di Secrets Streamlit."
-        )
+        st.error("❌ Groq API key belum diatur di Secrets Streamlit.")
         st.stop()
-
-    return Groq(api_key=api_key)
 
 client = get_client()
 
-# SIMPAN RIWAYAT CHAT
+# ---------------------------------------------------
+# TOMBOL RESET CHAT
+# ---------------------------------------------------
+col1, col2 = st.columns([6, 1])
+with col2:
+    if st.button("♻️ Reset"):
+        st.session_state.messages = []
+        st.rerun()
+
+# ---------------------------------------------------
+# CHAT MEMORY
+# ---------------------------------------------------
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# ---------------------------------------------------
 # TAMPILKAN CHAT SEBELUMNYA
+# ---------------------------------------------------
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
-        st.write(msg["content"])
+        st.markdown(msg["content"])
 
-# INPUT CHAT BARU
-user_input = st.chat_input("Ketik pertanyaan kamu...")
+# ---------------------------------------------------
+# INPUT BOX
+# ---------------------------------------------------
+placeholder_text = "Tanyakan sesuatu… contoh: Apa arti nilai NDWI negatif?"
+user_input = st.chat_input(placeholder_text)
 
+# ---------------------------------------------------
+# KALO USER KIRIM PESAN
+# ---------------------------------------------------
 if user_input:
-    # Simpan & tampilkan pesan user
+
+    # Tampilkan pesan user
     st.session_state.messages.append({"role": "user", "content": user_input})
     with st.chat_message("user"):
         st.write(user_input)
 
-    # Panggil API Groq
+    # Proses AI
     with st.chat_message("assistant"):
-        with st.spinner("AI sedang mengetik..."):
+        with st.spinner("AI sedang menganalisis data…"):
+
             response = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
+                temperature=0.25,
                 messages=[
                     {
                         "role": "system",
                         "content": (
-                            "Kamu adalah UCUP AI Assistant. "
-                            "Fokus menjawab tentang mangrove, kualitas air, turbiditas, "
-                            "banjir rob, dan lingkungan di Muara Angke. "
-                            "Jawab dengan bahasa Indonesia yang jelas, sederhana, "
-                            "dan terstruktur. Jika ada angka/indikator, jelaskan maknanya."
+                            "Kamu adalah **UCUP AI Assistant**, asisten lingkungan Muara Angke. "
+                            "Jawab dengan bahasa Indonesia yang sangat jelas, sederhana, ramah, "
+                            "dan terstruktur dalam poin-poin jika perlu.\n\n"
+                            "Fokus menjelaskan:\n"
+                            "- Mangrove & indeks MVI\n"
+                            "- Kualitas air (NDWI, NDTI)\n"
+                            "- Banjir rob (Flood Hazard Index)\n"
+                            "- Interpretasi nilai citra satelit\n"
+                            "- Data tahun 2020–2024\n\n"
+                            "Bila user bertanya umum, tetap hubungkan ke konteks lingkungan. "
+                            "Bila pertanyaan tidak relevan, arahkan kembali dengan sopan."
                         ),
                     },
-                    *[
-                        {"role": m["role"], "content": m["content"]}
-                        for m in st.session_state.messages
-                    ],
+                    *st.session_state.messages,
                 ],
-                temperature=0.3,
             )
 
             ai_answer = response.choices[0].message.content
-            st.write(ai_answer)
 
-    # Simpan jawaban AI ke riwayat
-    st.session_state.messages.append(
-        {"role": "assistant", "content": ai_answer}
-    )
+            # Tampilkan jawaban
+            st.markdown(ai_answer)
+
+    # Simpan ke riwayat
+    st.session_state.messages.append({"role": "assistant", "content": ai_answer})
