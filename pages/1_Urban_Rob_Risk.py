@@ -1,48 +1,42 @@
 import streamlit as st
 import ee
-import geemap.foliumap as geemap
-
-# =========================================================
-# INIT EARTH ENGINE
-# =========================================================
-import ee
-import streamlit as st
 import json
 import tempfile
 import os
 
-# Gunakan @st.cache_resource agar inisialisasi hanya dilakukan sekali per deployment
 @st.cache_resource
 def init_ee_service_account():
-    # ... (Bagian ini sama dengan respons sebelumnya) ...
     try:
-        # 1. Ambil konten JSON Service Account dari secrets
+        # 1. Ambil JSON service account dari secrets
         sa_json_str = st.secrets["gee"]["service_account_json"]
         sa_info = json.loads(sa_json_str)
-        
-        # 2. Buat file sementara
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as fp:
+
+        # 2. Tulis ke file sementara
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as fp:
             json.dump(sa_info, fp)
             key_file_path = fp.name
-        
-        # 3. Inisialisasi GEE menggunakan file kunci Service Account
-        ee.Initialize(
-            service_account_file=key_file_path,
-            project=sa_info.get("project_id") # Akan mengambil project ID: "estuaria" atau yang lain dari JSON
+
+        # 3. Buat credentials dari file
+        credentials = ee.ServiceAccountCredentials(
+            email=sa_info["client_email"],
+            key_file=key_file_path,
         )
-        
-        # 4. Hapus file sementara setelah inisialisasi
+
+        # 4. Inisialisasi Earth Engine
+        ee.Initialize(credentials, project=sa_info["project_id"])
+
+        # 5. Hapus file sementara
         os.remove(key_file_path)
 
-        st.sidebar.success(f"✅ GEE Terkoneksi: Proyek '{sa_info.get('project_id')}'")
         return True
 
     except Exception as e:
-        st.error(f"❌ Gagal menginisialisasi GEE: {e}")
-        st.error("Pastikan secrets.toml memiliki kunci Service Account JSON yang lengkap dan benar di bawah [gee].")
+        st.error(f"❌ Gagal menginisialisasi Google Earth Engine:\n\n{e}")
         st.stop()
-        
-    return False
+
+# PANGGIL SEKALI DI AWAL HALAMAN
+init_ee_service_account()
+
 
 # Panggil fungsi ini di awal skrip Anda
 if init_ee_service_account():
@@ -235,6 +229,7 @@ elif layer_choice == "Wetness Score":
     m.addLayer(result["wetScore"], {"min": 1, "max": 5, "palette": rainbow}, "Wetness Score")
 
 m.to_streamlit(height=600)
+
 
 
 
