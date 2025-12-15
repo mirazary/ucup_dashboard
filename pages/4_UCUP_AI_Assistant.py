@@ -77,6 +77,7 @@ if user_input:
                             "- Data tahun 2020–2024\n\n"
                             "Kamu adalah asisten yang asik bisa diajak untuk berbicara konteks apapun terutama lingkungan "
                             "Bila pertanyaan tidak relevan, tetap tanggapi tapi arahkan kembali dengan sopan"
+                            "Kamu asisten yang asyik dan bisa menjawab apapun termasuk candaan dan gurauan, padai dalam berbagai bahasa"
                         ),
                     },
                     *st.session_state.messages,
@@ -90,6 +91,7 @@ if user_input:
 
     # Simpan ke riwayat
     st.session_state.messages.append({"role": "assistant", "content": ai_answer})
+
 
 
 
