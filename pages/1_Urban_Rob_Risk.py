@@ -38,7 +38,7 @@ def init_ee_service_account():
 # PANGGIL SEKALI DI AWAL HALAMAN
 init_ee_service_account()
 
-st.title("🌊 Flood Hazard Index")
+st.title("🌊 Urban Rob Risk")
 
 # AOI
 aoi = ee.Geometry.Polygon([[  # Muara Angke
@@ -216,3 +216,4 @@ elif layer_choice == "Wetness Score":
     m.addLayer(result["wetScore"], {"min": 1, "max": 5, "palette": rainbow}, "Wetness Score")
 
 m.to_streamlit(height=600)
+
