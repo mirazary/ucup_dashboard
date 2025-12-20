@@ -40,7 +40,7 @@ def init_ee_service_account():
 # PANGGIL SEKALI DI AWAL HALAMAN
 init_ee_service_account()
 
-st.title("🌿 Mangrove Dashboard")
+st.title("🌿 Cover Mangrove")
 
 # AOI MUARA ANGKE
 aoi = ee.Geometry.Polygon(
@@ -203,3 +203,4 @@ with col_chart:
         color_discrete_map={"LOSS": "red", "GAIN": "green"},
     )
     st.plotly_chart(fig_lg, use_container_width=True)
+
