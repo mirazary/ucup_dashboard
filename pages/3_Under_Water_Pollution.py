@@ -34,7 +34,7 @@ def init_ee_service_account():
 init_ee_service_account()
 
 # PAGE HEADER
-st.title("💧 Water Quality & Turbidity")
+st.title("💧 Under Water Pollution")
 
 st.markdown(
     """
@@ -140,3 +140,4 @@ try:
 
 except Exception:
     st.info("Histogram tidak dapat dihitung (kemungkinan data air sedikit).")
+
