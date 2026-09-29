@@ -7,4 +7,4 @@ numpy
 plotly
 groq
 requests
-setuptools
+setuptools<81
